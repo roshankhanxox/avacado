@@ -13,7 +13,6 @@ import {
 import { avalancheFuji } from "wagmi/chains";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
-import { AiOutlineCheckCircle, AiOutlineDownload } from "react-icons/ai";
 import { NewLayout, LoadingSpinner, StatusIndicator } from "../newComponents";
 import { CIRCUIT_CONFIG, CONTRACTS, URLS } from "../config/contracts";
 import "../newStyles.css";
@@ -26,7 +25,7 @@ interface NewRegistrationProps {
 export function NewRegistration({ onNavigate, mode }: NewRegistrationProps) {
     const [txHash, setTxHash] = useState<`0x${string}`>("" as `0x${string}`);
     const [isRegistering, setIsRegistering] = useState(false);
-    const [step, setStep] = useState<"generate" | "backup" | "register">(
+    const [step, setStep] = useState<"generate" | "register">(
         "generate"
     );
     
@@ -51,7 +50,6 @@ export function NewRegistration({ onNavigate, mode }: NewRegistrationProps) {
         shouldGenerateDecryptionKey,
         generateDecryptionKey,
         register,
-        publicKey,
     } = useEERC(
         publicClient as CompatiblePublicClient,
         walletClient as CompatibleWalletClient,
@@ -100,9 +98,9 @@ export function NewRegistration({ onNavigate, mode }: NewRegistrationProps) {
     // Auto-advance to backup step when keys are generated
     useEffect(() => {
         if (isDecryptionKeySet && step === "generate") {
-            console.log("[Registration] Keys detected, advancing to backup step");
-            setStep("backup");
-            toast.success("✓ Keys generated! Please backup your keys.", { 
+            console.log("[Registration] Keys detected, advancing to register step");
+            setStep("register");
+            toast.success("✓ Keys generated! Ready to register.", { 
                 autoClose: 3000,
                 toastId: "keys-generated"
             });
@@ -124,31 +122,6 @@ export function NewRegistration({ onNavigate, mode }: NewRegistrationProps) {
             console.error(error);
             toast.error("Failed to generate keys. Please try again.");
         }
-    };
-
-    const handleDownloadKey = () => {
-        if (!publicKey) {
-            toast.error("No public key to download");
-            return;
-        }
-
-        const keyData = {
-            publicKey: publicKey,
-            address: address,
-            timestamp: new Date().toISOString(),
-        };
-
-        const blob = new Blob([JSON.stringify(keyData, null, 2)], {
-            type: "application/json",
-        });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `4dent-keys-${address?.slice(0, 8)}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
-
-        toast.success("Keys downloaded successfully!");
     };
 
     const handleRegister = async () => {
@@ -253,13 +226,8 @@ export function NewRegistration({ onNavigate, mode }: NewRegistrationProps) {
                         <span className="text-sm font-medium">Generate Keys</span>
                     </div>
                     <div className="step-connector" />
-                    <div className={`step ${step === "backup" ? "active" : step === "register" ? "completed" : ""}`}>
-                        <div className="step-circle">2</div>
-                        <span className="text-sm font-medium">Backup Keys</span>
-                    </div>
-                    <div className="step-connector" />
                     <div className={`step ${step === "register" ? "active" : ""}`}>
-                        <div className="step-circle">3</div>
+                        <div className="step-circle">2</div>
                         <span className="text-sm font-medium">Register</span>
                     </div>
                 </motion.div>
@@ -308,81 +276,7 @@ export function NewRegistration({ onNavigate, mode }: NewRegistrationProps) {
                     </motion.div>
                 )}
 
-                {/* Step 2: Backup Keys */}
-                {isDecryptionKeySet && step === "backup" && (
-                    <motion.div 
-                        key="backup"
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -20 }}
-                        transition={{ duration: 0.3 }}
-                        className="frost-card p-8"
-                    >
-                        <div className="mb-4 flex items-center justify-between">
-                            <span className="mono-kicker text-emerald-green">
-                                [ STEP 2: BACKUP YOUR KEYS ]
-                            </span>
-                        </div>
-
-                        <h2 className="text-2xl font-semibold mb-4">
-                            Backup Your Keys
-                        </h2>
-
-                        <div className="rounded-[8px] border-2 border-coral-red bg-white/80 p-6 mb-6">
-                            <div className="flex items-start gap-3">
-                                <AiOutlineCheckCircle className="h-6 w-6 text-coral-red mt-1" />
-                                <div>
-                                    <p className="font-semibold text-black mb-2">
-                                        ⚠️ Critical: Save Your Keys!
-                                    </p>
-                                    <p className="text-sm text-gray-600">
-                                        Your keys cannot be recovered if lost.
-                                        Download and store them in a safe place.
-                                        Without these keys, you won't be able to
-                                        decrypt your balances.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {publicKey && (
-                            <div className="rounded-[8px] border border-black/10 bg-gray-50 p-4 mb-6">
-                                <p className="mono-kicker mb-2">
-                                    Your Public Key
-                                </p>
-                                <p
-                                    className="text-xs font-mono break-all text-gray-700"
-                                    style={{
-                                        fontFamily:
-                                            "JetBrains Mono, Monaco, monospace",
-                                    }}
-                                >
-                                    {JSON.stringify(publicKey)}
-                                </p>
-                            </div>
-                        )}
-
-                        <div className="flex flex-col sm:flex-row gap-4">
-                            <button
-                                type="button"
-                                onClick={handleDownloadKey}
-                                className="btn-secondary flex items-center gap-2 justify-center"
-                            >
-                                <AiOutlineDownload className="h-4 w-4" />
-                                Download Keys
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setStep("register")}
-                                className="btn-primary"
-                            >
-                                I've Saved My Keys →
-                            </button>
-                        </div>
-                    </motion.div>
-                )}
-
-                {/* Step 3: Register */}
+                {/* Step 2: Register */}
                 {isDecryptionKeySet && step === "register" && (
                     <motion.div 
                         key="register"
@@ -394,7 +288,7 @@ export function NewRegistration({ onNavigate, mode }: NewRegistrationProps) {
                     >
                         <div className="mb-4 flex items-center justify-between">
                             <span className="mono-kicker text-emerald-green">
-                                [ STEP 3: REGISTER ON-CHAIN ]
+                                [ STEP 2: REGISTER ON-CHAIN ]
                             </span>
                         </div>
 
@@ -456,8 +350,7 @@ export function NewRegistration({ onNavigate, mode }: NewRegistrationProps) {
                     <button
                         type="button"
                         onClick={() => {
-                            if (step === "backup") setStep("generate");
-                            if (step === "register") setStep("backup");
+                            if (step === "register") setStep("generate");
                         }}
                         className="btn-secondary"
                     >

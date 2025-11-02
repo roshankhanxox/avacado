@@ -33,7 +33,7 @@ import { useAppKit } from "@reown/appkit/react";
 export function EERC() {
     useWebComponents();
     const [txHash, setTxHash] = useState<`0x${string}`>("" as `0x${string}`);
-    const [mode, setMode] = useState<EERCMode>("standalone");
+    const [mode, setMode] = useState<EERCMode>("converter");
     const [showEncryptedDetails, setShowEncryptedDetails] = useState(false);
     const [isRegistering, setIsRegistering] = useState(false);
     const [isTransactionPending, setIsTransactionPending] = useState(false);

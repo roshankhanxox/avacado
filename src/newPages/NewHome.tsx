@@ -15,7 +15,7 @@ interface NewHomeProps {
     mode?: "standalone" | "converter";
 }
 
-export function NewHome({ onNavigate, mode = "standalone" }: NewHomeProps) {
+export function NewHome({ onNavigate, mode = "converter" }: NewHomeProps) {
     const { isConnected } = useAccount();
     const publicClient = usePublicClient({ chainId: avalancheFuji.id });
     const { data: walletClient } = useWalletClient();

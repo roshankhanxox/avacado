@@ -66,7 +66,7 @@ export function App() {
         return saved || "home";
     });
 
-    const [mode] = useState<"standalone" | "converter">("standalone");
+    const [mode] = useState<"standalone" | "converter">("converter");
 
     // Save UI version to localStorage when it changes
     const handleSetUiVersion = (version: "classic" | "new") => {
