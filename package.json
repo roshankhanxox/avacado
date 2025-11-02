@@ -5,7 +5,7 @@
     "type": "module",
     "scripts": {
         "dev": "npm run build:sdk && vite",
-    "build:sdk": "mkdir -p ./packages && ( [ -L ./packages/ac-eerc-sdk ] || [ -d ./packages/ac-eerc-sdk ] ) || ln -s ../ac-eerc-sdk ./packages/ac-eerc-sdk && cd ../ac-eerc-sdk && npm install --silent && npm run build",
+        "build:sdk": "cd ./packages/ac-eerc-sdk && npm run build",
         "build": "npm run build:sdk && vite build",
         "preview": "vite preview"
     },
